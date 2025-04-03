@@ -32,8 +32,8 @@ def preprocess_text(text):
     tokens = text.split()
     return [word for word in tokens if word not in stop_words]
 
-def compute_sentiment(tokens, pos, neg):
-    return sum(1 for t in tokens if t in pos) - sum(1 for t in tokens if t in neg)
+def compute_sentiment(tokens, pos, neg, positive_multiplier=1.5):
+    return sum(1 + positive_multiplier for t in tokens if t in pos) - sum(1 for t in tokens if t in neg)
 
 # Load financial headline
 def load_news_data():
@@ -87,6 +87,8 @@ def main():
     # Loading and preprocessing
     news_df = load_news_data()
     print("News data loaded:", news_df.shape)
+    for idx, row in news_df.head(10).iterrows():
+        print(f"{row['Date']}  {row['Headline']}")
 
     news_df['Tokens'] = news_df['Headline'].apply(preprocess_text)
     pos, neg = load_lm_lexicon()
@@ -96,7 +98,6 @@ def main():
     daily_sentiment = news_df.groupby('Date')['SentimentScore'].mean().to_frame()
     daily_sentiment.index = pd.to_datetime(daily_sentiment.index).normalize()
     daily_sentiment.index.name = "Date"
-
 
     # Timeline since the first financial new article to the last in the dataset
     start = pd.to_datetime(news_df['Date'].min()).normalize()

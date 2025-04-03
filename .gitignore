@@ -1,0 +1,11 @@
+# virtualenv
+venv/
+.env/
+.env*/
+*/env/
+*/venv/
+myenv311/
+
+.DS_Store
+*/.DS_Store
+*/.idea/
