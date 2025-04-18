@@ -6,6 +6,7 @@ venv/
 */venv/
 myenv311/
 news_env/*
+myenv/*
 
 .DS_Store
 */.DS_Store
