@@ -10,7 +10,6 @@ Original file is located at
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import yfinance as yf
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
@@ -18,7 +17,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.preprocessing import MinMaxScaler
-from google.colab import files
 import time
 
 SEQ_LEN = 20
@@ -26,54 +24,6 @@ BATCH_SIZE = 32
 EPOCHS = 50
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def load_tesla_data():
-    df = yf.download('TSLA', start='2022-01-01', end='2025-01-04', interval='1d')
-    df = df.dropna()
-    df.reset_index(inplace=True)
-
-    ticker = yf.Ticker('TSLA')
-    info = ticker.info
-
-    numeric_info = {
-        key.replace(" ", "_").replace("/", "_").replace("%", "pct"): value
-        for key, value in info.items()
-        if isinstance(value, (int, float))
-    }
-
-    meta_df = pd.DataFrame([numeric_info] * len(df), index=df.index)
-
-    df_combined = pd.concat([df, meta_df], axis=1)
-
-
-    date_col = df_combined.iloc[:, 0]  # First column is 'Date'
-    data_only = df_combined.iloc[:, 1:]
-    numeric_data = data_only.select_dtypes(include='number')
-    final_df = pd.concat([date_col, numeric_data], axis=1)
-
-    return final_df
-
-
-df = load_tesla_data()
-desired_col_indices = [0, 1, 2, 3, 4, 5, 16, 19, 25, 26, 27, 37, 32, 71, 60, 90, 64]
-df = df.iloc[:, desired_col_indices]
-df = df.loc[:, df.nunique() > 1]
-print(df.head())
-
-
-csv_path = 'tesla_enriched_data.csv'
-df.to_csv(csv_path, index=False)
-print(f"Data saved to '{csv_path}'")
-
-import time
-from google.colab import files
-
-time.sleep(1)
-files.download(csv_path)
-
-df.columns[0]
-
-df_final = load_tesla_data()
-print(df_final.head())
 
 class SequenceDataset(Dataset):
     def __init__(self, X, y, seq_len):
@@ -89,7 +39,6 @@ class SequenceDataset(Dataset):
 
     def __getitem__(self, idx):
         return torch.tensor(self.X[idx], dtype=torch.float32), torch.tensor(self.y[idx], dtype=torch.float32)
-
 
 class CustomRNN(nn.Module):
     def __init__(self, input_size=1, hidden_size=64, num_layers=1, dropout=0.0):
@@ -151,12 +100,21 @@ def plot_predictions(preds, y_true, title="Prediction vs Actual"):
 
 
 def main():
-    df = load_dataset()
-    df_2022_2024 = df[df['Date'] < '2025-01-01']
-    df_2025 = df[df['Date'] >= '2025-01-01']
+    csv_path = 'data/tesla_enriched_data.csv'
+    df = pd.read_csv(csv_path)
+    df.rename(columns={
+        "('Date', '')": 'Published',
+        "('Close', 'TSLA')": 'Close',
+        "('High', 'TSLA')": 'High',
+        "('Low', 'TSLA')": 'Low',
+        "('Open', 'TSLA')": 'Open',
+        "('Volume', 'TSLA')": 'Volume',
+    }, inplace=True)
+    df_2022_2024 = df[df['Published'] < '2025-01-01']
+    df_2025 = df[df['Published'] >= '2025-01-01']
 
     target_col = df.columns[2]  # Use the column at index 2
-    feature_cols = df.columns.drop(['Date', target_col])
+    feature_cols = df.columns.drop(['Published', target_col])
 
     # Scale features
     scaler = MinMaxScaler()
@@ -185,7 +143,8 @@ def main():
     print("\n--- RNN MODELS ---")
     for i, config in enumerate(rnn_configs):
         print(f"\nTraining RNN Model {i+1} with config: {config}")
-        rnn_model = CustomRNN(input_size=input_size, **config)
+        model_params = {k: v for k, v in config.items() if k in ['hidden_size', 'num_layers', 'dropout']}
+        rnn_model = CustomRNN(input_size=input_size, **model_params)
         trained = train_model(rnn_model, train_loader, lr=config["lr"], optimizer_type=config["opt"])
         preds, true = evaluate_model(trained, X_test_tensor, y_test_tensor)
         print(f"[RNN {i+1}] MSE: {mean_squared_error(true, preds):.4f}, R^2: {r2_score(true, preds):.4f}")
@@ -196,7 +155,8 @@ def main():
     print("\n--- LSTM MODELS ---")
     for i, config in enumerate(lstm_configs):
         print(f"\nTraining LSTM Model {i+1} with config: {config}")
-        lstm_model = CustomLSTM(input_size=input_size, **config)
+        model_params = {k: v for k, v in config.items() if k in ['hidden_size', 'num_layers', 'dropout']}
+        lstm_model = CustomLSTM(input_size=input_size, **model_params)
         trained = train_model(lstm_model, train_loader, lr=config["lr"], optimizer_type=config["opt"])
         preds, true = evaluate_model(trained, X_test_tensor, y_test_tensor)
         print(f"[LSTM {i+1}] MSE: {mean_squared_error(true, preds):.4f}, R^2: {r2_score(true, preds):.4f}")
