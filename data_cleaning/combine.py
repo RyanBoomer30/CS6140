@@ -17,7 +17,6 @@ def add_extra_features(df):
     df['score_cu']             = s.pow(3)
     df['score_dev']            = (s - 0.5).abs()
     df['inverted_score']       = 1 - s
-    df['skewed_score']         = s.pow(2)
     df['inverted_skewed_score'] = (1 - s).pow(2)
     return df
 
