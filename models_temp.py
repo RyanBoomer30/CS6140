@@ -11,7 +11,7 @@ from sklearn.preprocessing import MinMaxScaler
 import time
 
 # Constants
-SEQ_LEN = 20
+SEQ_LEN = 3
 BATCH_SIZE = 32
 EPOCHS = 50
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
