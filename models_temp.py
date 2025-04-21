@@ -393,7 +393,7 @@ def main():
     print(f"Final train set size: {len(df_final_train)}, test set size: {len(df_final_test)}")
     
     # Check for sentiment column
-    sentiment_cols = [col for col in df_final.columns if 'senti' in col.lower()]
+    sentiment_cols = [col for col in df_final.columns if 'Sentiment Score' or 'score_sq' or 'score_cu' or 'score_dev' in col.lower()]
     if not sentiment_cols:
         sentiment_cols = ['Sentiment Score']
     print(f"Using sentiment columns: {sentiment_cols}")
