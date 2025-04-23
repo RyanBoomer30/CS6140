@@ -476,8 +476,6 @@ def main():
         rnn_model = CustomRNN(input_size=input_size_base, **model_params)
         trained_model, losses = train_model(rnn_model, train_loader_base, lr=config["lr"], optimizer_type=config["opt"])
         preds, true, mse, r2 = evaluate_model(trained_model, X_test_tensor_base, y_test_tensor)
-        preds = scaler_y.inverse_transform(preds.reshape(-1, 1)).flatten()
-        true = scaler_y.inverse_transform(true.reshape(-1, 1)).flatten()
         print(f"[RNN {i+1}] MSE: {mse:.4f}, R^2: {r2:.4f}")
         
         # Store results
@@ -491,11 +489,11 @@ def main():
         
         # Plot predictions
         plt.figure(figsize=(10, 4))
-        plt.plot(df_final_test["Close"], label="Actual")
+        plt.plot(true, label="Actual")
         plt.plot(preds, label="Predicted")
         plt.title(f"RNN Model {i+1} (Without Sentiment)")
-        plt.xlabel("Time")
-        plt.ylabel("Price")
+        plt.xlabel("# of Epochs")
+        plt.ylabel("MSE loss")
         plt.legend()
         plt.savefig(f"RNN_Model_{i+1}_without_sentiment.png", dpi=300)
         plt.close()
@@ -521,11 +519,11 @@ def main():
         
         # Plot predictions
         plt.figure(figsize=(10, 4))
-        plt.plot(df_final_test["Close"], label="Actual")
+        plt.plot(true, label="Actual")
         plt.plot(preds, label="Predicted")
         plt.title(f"LSTM Model {i+1} (Without Sentiment)")
         plt.xlabel("# of Epochs")
-        plt.ylabel("Price")
+        plt.ylabel("MSE loss")
         plt.legend()
         plt.savefig(f"LSTM_Model_{i+1}_without_sentiment.png", dpi=300)
         plt.close()
@@ -565,11 +563,11 @@ def main():
         
         # Plot predictions
         plt.figure(figsize=(10, 4))
-        plt.plot(df_final_test["Close"], label="Actual")
+        plt.plot(true, label="Actual")
         plt.plot(preds, label="Predicted")
         plt.title(f"RNN Model {i+1} (With Sentiment)")
         plt.xlabel("# of Epochs")
-        plt.ylabel("Price")
+        plt.ylabel("MSE loss")
         plt.legend()
         plt.savefig(f"RNN_Model_{i+1}_with_sentiment.png", dpi=300)
         plt.close()
@@ -581,7 +579,7 @@ def main():
         plt.plot(results['with_sentiment'][f'RNN_{i+1}']['predictions'], label=f"With Sentiment (MSE: {results['with_sentiment'][f'RNN_{i+1}']['metrics']['mse']:.4f})", linestyle='-.')
         plt.title(f"RNN Model {i+1} - Sentiment Impact Comparison")
         plt.xlabel("# of Epochs")
-        plt.ylabel("Price")
+        plt.ylabel("MSE loss")
         plt.legend()
         plt.savefig(f"RNN_Model_{i+1}_comparison.png", dpi=300)
         plt.close()
@@ -606,11 +604,11 @@ def main():
         
         # Plot predictions
         plt.figure(figsize=(10, 4))
-        plt.plot(df_final_train["Close"], label="Actual")
+        plt.plot(true, label="Actual")
         plt.plot(preds, label="Predicted")
         plt.title(f"LSTM Model {i+1} (With Sentiment)")
         plt.xlabel("# of Epochs")
-        plt.ylabel("Price")
+        plt.ylabel("MSE loss")
         plt.legend()
         plt.savefig(f"LSTM_Model_{i+1}_with_sentiment.png", dpi=300)
         plt.close()
@@ -621,7 +619,8 @@ def main():
         plt.plot(results['without_sentiment'][f'LSTM_{i+1}']['predictions'], label=f"Without Sentiment (MSE: {results['without_sentiment'][f'LSTM_{i+1}']['metrics']['mse']:.4f})", linestyle='--')
         plt.plot(results['with_sentiment'][f'LSTM_{i+1}']['predictions'], label=f"With Sentiment (MSE: {results['with_sentiment'][f'LSTM_{i+1}']['metrics']['mse']:.4f})", linestyle='-.')
         plt.title(f"LSTM Model {i+1} - Sentiment Impact Comparison")
-        plt.xlabel(" ")
+        plt.xlabel("# of Epochs")
+        plt.ylabel("MSE loss")
         plt.legend()
         plt.savefig(f"LSTM_Model_{i+1}_comparison.png", dpi=300)
         plt.close()
