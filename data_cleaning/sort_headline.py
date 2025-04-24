@@ -10,8 +10,7 @@ df = pd.read_csv(data_dir / 'news_headlines_2022.csv')
 print("Before sorting:")
 print(df.head())
 
-# Convert the 'Published' column to datetime:
-# Remove the " UTC" text to enable proper parsing with timezone offset.
+# Convert the 'Published' column to datetime
 df['Published_parsed'] = pd.to_datetime(
     df['Published'].str.replace(" UTC", ""), 
     format="%m/%d/%Y, %I:%M %p, %z", 
@@ -27,9 +26,7 @@ else:
 # Sort the dataframe by the parsed Published date in ascending order
 df_sorted = df.sort_values('Published_parsed')
 
-df_sorted = df_sorted.drop_duplicates(subset=['Title'], keep='first')  # Keeps the first occurrence
-
-# Optionally, drop the helper 'Published_parsed' column if you only want the original columns
+df_sorted = df_sorted.drop_duplicates(subset=['Title'], keep='first')  
 df_sorted = df_sorted.drop(columns=['Published_parsed'])
 
 # Save the sorted data to a new CSV file
