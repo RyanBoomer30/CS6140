@@ -1,3 +1,7 @@
+"""
+Analysis of the sentiment scores, positive, negative and neutral
+"""
+
 import pandas as pd
 
 def add_basis_features(df):

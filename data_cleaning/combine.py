@@ -1,3 +1,7 @@
+"""
+Combine all sentiment data with financial data into data/final_dataset.csv file
+"""
+
 import pandas as pd
 from pathlib import Path
 

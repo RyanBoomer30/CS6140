@@ -1,3 +1,7 @@
+"""
+Using Groq API for Sentiment Analysis on News Headlines
+"""
+
 import os
 import re
 import argparse

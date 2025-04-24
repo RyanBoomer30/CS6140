@@ -1,7 +1,11 @@
+"""
+Sort the news headlines by date and remove duplicates based on the title.
+"""
+
 import pandas as pd
 
 # Load the CSV file
-df = pd.read_csv('data/news_headlines_2022.csv')
+df = pd.read_csv('../data/news_headlines_2022.csv')
 
 # Display the first few rows to inspect the file structure
 print("Before sorting:")
@@ -30,7 +34,7 @@ df_sorted = df_sorted.drop_duplicates(subset=['Title'], keep='first')  # Keeps t
 df_sorted = df_sorted.drop(columns=['Published_parsed'])
 
 # Save the sorted data to a new CSV file
-sorted_file_path = 'data/news_headlines_2022_sorted.csv'
+sorted_file_path = '../data/news_headlines_2022_sorted.csv'
 df_sorted.to_csv(sorted_file_path, index=False)
 print(f"\nCSV file has been successfully sorted by date and saved to: {sorted_file_path}")
 
