@@ -19,7 +19,7 @@ print(df_test.size)
 
 # 3. Define feature columns and target
 features = [
-    'High', 'Low', 'Open', 'Volume',
+    'Open',
     'score_sq', 'score_cu', 'score_dev',
     'inverted_score', 'skewed_score', 'inverted_skewed_score'
 ]
