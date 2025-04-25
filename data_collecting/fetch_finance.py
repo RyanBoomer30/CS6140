@@ -1,3 +1,7 @@
+"""
+Fetches Tesla stock data from Yahoo Finance and enriches it with additional metadata.
+"""
+
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -36,6 +40,6 @@ df = df.loc[:, df.nunique() > 1]
 print(df.head())
 
 
-csv_path = 'data/tesla_enriched_data.csv'
+csv_path = '../data/tesla_enriched_data.csv'
 df.to_csv(csv_path, index=False)
 print(f"Data saved to '{csv_path}'")

@@ -1,3 +1,7 @@
+"""
+Using Groq API for Sentiment Analysis on News Headlines
+"""
+
 import os
 import re
 import argparse
@@ -47,14 +51,8 @@ def call_groq_api(client, prompt, model="llama3-70b-8192"):
     return result
 
 def main():
-    # Setup argument parser to accept input and output CSV file paths
-    parser = argparse.ArgumentParser(
-        description="Perform sentiment analysis on news headlines using the Groq API and output the results to a CSV file."
-    )
-    parser.add_argument("csv_file", help="Path to the input CSV file containing the dataset")
-    parser.add_argument("output_file", help="Path for the output CSV file with results")
-    parser.add_argument("--model", default="llama3-70b-8192", help="Groq model to use (default: llama3-70b-8192)")
-    args = parser.parse_args()
+    csv_file = "../data/news_headlines_2022.csv"
+    output_file = "../data/sentimental_score.csv"
 
     # Check for Groq API key
     groq_api_key = os.environ.get("GROQ_API_KEY")
@@ -67,7 +65,7 @@ def main():
 
     # Load the CSV file into a pandas DataFrame
     try:
-        df = pd.read_csv(args.csv_file)
+        df = pd.read_csv(csv_file)
     except Exception as e:
         print(f"Error reading CSV file: {e}")
         return
@@ -85,11 +83,13 @@ def main():
         print(f"\nProcessing headline {index + 1}/{total_headlines}: {headline}")
         
         # Build the prompt according to the API requirements
-        prompt = f"""You are given a news headline: "{headline}"
-Perform sentiment analysis on the headline.
-Using a scale where 0 represents a very negative sentiment and 1 represents a very positive sentiment,
-compute and output only a single float value between 0 and 1 representing the overall sentiment.
-Return only the float value with no additional text."""
+        prompt = f"""
+            You are given a news headline: "{headline}"
+            Perform sentiment analysis on the headline.
+            Using a scale where 0 represents a very negative sentiment and 1 represents a very positive sentiment,
+            compute and output only a single float value between 0 and 1 representing the overall sentiment.
+            Return only the float value with no additional text.
+        """
 
         try:
             api_result = call_groq_api(client, prompt, model=args.model)
@@ -120,8 +120,8 @@ Return only the float value with no additional text."""
     # Save the results into an output CSV file
     results_df = pd.DataFrame(results)
     try:
-        results_df.to_csv(args.output_file, index=False)
-        print(f"\nSentiment analysis results saved to {args.output_file}")
+        results_df.to_csv(output_file, index=False)
+        print(f"\nSentiment analysis results saved to {output_file}")
         print(f"Successfully processed {len(results)} headlines.")
         
         # Report on any missing scores
