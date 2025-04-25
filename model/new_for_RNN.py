@@ -89,17 +89,15 @@ def run_rnn(activation, optimizer, title_suffix):
         scaler.inverse_transform(test_close_scaled[sequence_length:])[:, -1],
         predicted_close_limited.flatten()
     )
-
     plt.figure(figsize=(12, 8))
     plt.plot(test_df['Published'][sequence_length:], scaler.inverse_transform(test_close_scaled[sequence_length:]), label='Original Close Price', color='blue')
-    plt.plot(test_df['Published'][sequence_length:], predicted_close_all, label=f'With Sentiment(MSE={mse_all:.4f}, R²={r2_all:.4f})', color='green')
-    plt.plot(test_df['Published'][sequence_length:], predicted_close_limited, label=f'Without Sentiment (MSE={mse_limited:.4f}, R²={r2_limited:.4f})', color='orange')
+    plt.plot(test_df['Published'][sequence_length:], predicted_close_all, label=f'Regular (MSE={mse_all:.4f}, R²={r2_all:.4f})', color='green')
+    plt.plot(test_df['Published'][sequence_length:], predicted_close_limited, label=f'With Sentiment (MSE={mse_limited:.4f}, R²={r2_limited:.4f})', color='orange')
     plt.xlabel('Published Date')
     plt.ylabel('Close Price')
     plt.title(f'Comparison of Actual vs Predicted Close Prices for RNN ({title_suffix})')
     plt.legend()
     plt.grid(True)
-    plt.show()
 
     plot_filename = os.path.join(output_dir, f"RNN_{title_suffix.replace(': ', '_').replace(', ', '_').replace(' ', '_')}.png")
     plt.savefig(plot_filename)
